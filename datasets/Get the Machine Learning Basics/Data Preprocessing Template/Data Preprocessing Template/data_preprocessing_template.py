@@ -7,5 +7,6 @@ import pandas as pd
 
 # Importing the dataset
 dataset = pd.read_csv('Data.csv')
-X = dataset.iloc[:, :-1].values
-y = dataset.iloc[:, -1].values
+X = dataset.iloc[:, :-1].values #tomamos todas las filas y todas las columnas menos la ultima
+y = dataset.iloc[:, -1].values #tomamos todas las filas y la ultima columna
+
