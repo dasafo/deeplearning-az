@@ -14,8 +14,8 @@ Created on Sun Apr 28 10:38:56 2019
 # Instalar Tensorflow y Keras
 # conda install -c conda-forge keras
 
-# Parte 1 - Pre procesado de datos
 
+# ---------------Parte 1 - Pre procesado de datos------------------
 
 # Cómo importar las librerías
 import numpy as np
@@ -26,16 +26,18 @@ import pandas as pd
 dataset = pd.read_csv('Churn_Modelling.csv')
 
 X = dataset.iloc[:, 3:13].values
-y = dataset.iloc[:, 13].values
+y = dataset.iloc[:, 13].values #Si el cliente se queda en el banco o no
 
-# Codificar datos categóricos
+# Codificar datos categóricos (paises y generos) a variables numericas
 from sklearn.preprocessing import LabelEncoder
 labelencoder_X_1 = LabelEncoder()
-X[:, 1] = labelencoder_X_1.fit_transform(X[:, 1])
+X[:, 1] = labelencoder_X_1.fit_transform(X[:, 1]) #paises
 labelencoder_X_2 = LabelEncoder()
-X[:, 2] = labelencoder_X_2.fit_transform(X[:, 2])
+X[:, 2] = labelencoder_X_2.fit_transform(X[:, 2]) #genero
 
-#El OneHotEncoder en las nuevas versiones está OBSOLETO
+# Ahora queremos transformar lso numeros asociados a los paises a variables dummie
+
+#El OneHotEncoder en las nuevas versiones está OBSOLETO (justo debajo la forma de ahora)
 #onehotencoder = OneHotEncoder(categorical_features=[1])
 #X = onehotencoder.fit_transform(X).toarray()
 
@@ -65,19 +67,24 @@ X_train = sc_X.fit_transform(X_train)
 X_test = sc_X.transform(X_test)
 
 
-# Parte 2 - Construir la RNA
+# ---------------------Parte 2 - Construir la RNA-------------------------
 
 # Importar Keras y librerías adicionales
 import keras
 from keras.models import Sequential
-from keras.layers import Dense
+from keras.layers import Dense #para crear las capas e incializar los pesos
 from keras.layers import Dropout
 
 # Inicializar la RNA
-classifier = Sequential()
+classifier = Sequential() #Sequential es la funcion para incializar las RNA
 
 # Añadir las capas de entrada y primera capa oculta
-classifier.add(Dense(units = 6, kernel_initializer = "uniform",  activation = "relu", input_dim = 11))
+#Dense se encarga de añadir propiedades a las conexiones de las capas. 
+# -units es el numero de nodos que añadimos a la capa oculta(se suele poner la media entre las entradas y el nodo de salida (11+1)/2=6)
+# -Kernel_initializer para elegir la funcion que usaran los pesos
+# -activation es la funcion de activacion para activar en la capa oculta (relu=rectificador lineal unitario)
+# -input_dim son los nodos de entrada
+classifier.add(Dense(units = 6, kernel_initializer = "uniform",  activation = "relu", input_dim = 11)) 
 classifier.add(Dropout(p = 0.1))
 
 # Añadir la segunda capa oculta
@@ -88,24 +95,29 @@ classifier.add(Dropout(p = 0.1))
 classifier.add(Dense(units = 1, kernel_initializer = "uniform",  activation = "sigmoid"))
 
 # Compilar la RNA
+# -optimizer se encarga de buscar el conjunto optimo de pesos, usamos el algortimo adam
+# -loss es la funcion de perdidas, la que minimiza el error
+# -metrics es la metrica
 classifier.compile(optimizer = "adam", loss = "binary_crossentropy", metrics = ["accuracy"])
 
 # Ajustamos la RNA al Conjunto de Entrenamiento
+# -batch_size numero de bloques, procesar dichos bloques y corregir
+# -epochs es el numero de iteraciones
 classifier.fit(X_train, y_train,  batch_size = 10, epochs = 100)
 
 
-# Parte 3 - Evaluar el modelo y calcular predicciones finales
+# ------------Parte 3 - Evaluar el modelo y calcular predicciones finales----------------
 
 # Predicción de los resultados con el Conjunto de Testing
 y_pred  = classifier.predict(X_test)
-y_pred = (y_pred>0.5)
+y_pred = (y_pred>0.5) #los valores por encima de 0.5 seran considerados como que abandonan
 
 # Elaborar una matriz de confusión
 from sklearn.metrics import confusion_matrix
 cm = confusion_matrix(y_test, y_pred)
 print((cm[0][0]+cm[1][1])/cm.sum())
 
-## Parte 4 - Evaluar, mejorar y Ajustar la RNA
+## --------------------Parte 4 - Evaluar, mejorar y Ajustar la RNA---------------------------
 
 ### Evaluar la **RNA**
 from keras.wrappers.scikit_learn import KerasClassifier
