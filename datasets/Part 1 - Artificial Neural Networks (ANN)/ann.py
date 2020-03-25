@@ -85,11 +85,11 @@ classifier = Sequential() #Sequential es la funcion para incializar las RNA
 # -activation es la funcion de activacion para activar en la capa oculta (relu=rectificador lineal unitario)
 # -input_dim son los nodos de entrada
 classifier.add(Dense(units = 6, kernel_initializer = "uniform",  activation = "relu", input_dim = 11)) 
-classifier.add(Dropout(p = 0.1))
+classifier.add(Dropout(p = 0.1)) #para evitar el overfitting
 
 # Añadir la segunda capa oculta
 classifier.add(Dense(units = 6, kernel_initializer = "uniform",  activation = "relu"))
-classifier.add(Dropout(p = 0.1))
+classifier.add(Dropout(p = 0.1)) #para evitar el overfitting
 
 # Añadir la capa de salida
 classifier.add(Dense(units = 1, kernel_initializer = "uniform",  activation = "sigmoid"))
@@ -119,11 +119,11 @@ print((cm[0][0]+cm[1][1])/cm.sum())
 
 ## --------------------Parte 4 - Evaluar, mejorar y Ajustar la RNA---------------------------
 
-### Evaluar la **RNA**
+### Evaluar la **RNA** con K-Fold Validation en Keras
 from keras.wrappers.scikit_learn import KerasClassifier
 from sklearn.model_selection import cross_val_score
 
-def build_classifier():
+def build_classifier(): #Creamos las capas de la red neuronal
   classifier = Sequential()
   classifier.add(Dense(units = 6, kernel_initializer = "uniform", activation = "relu", input_dim = 11))
   classifier.add(Dense(units = 6, kernel_initializer = "uniform", activation = "relu"))
@@ -141,7 +141,7 @@ variance = accuracies.std()
 #### Regularización de Dropout para evitar el *overfitting*
 
 ### Ajustar la *RNA*
-from sklearn.model_selection import GridSearchCV # sklearn.grid_search
+from sklearn.model_selection import GridSearchCV # sklearn.grid_search en otra version antigua de Python
 
 def build_classifier(optimizer):
   classifier = Sequential()
